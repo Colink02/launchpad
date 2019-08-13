@@ -1,6 +1,6 @@
 let midi = null;
 let output = null;
-
+let clear = true;
 let launchpadMK2 = [
     81, 82, 83, 84, 85, 86, 87, 88,
     71, 72, 73, 74, 75, 76, 77, 78,
@@ -40,7 +40,7 @@ function onMIDIFailure(msg) {
 }
 
 function onStateChange(event) {
-    //console.log(event.port);
+    console.log(event.port);
 }
 
 function sendNoteTo(output, note, velocity = 127, textColor = 0x60) {
@@ -49,7 +49,37 @@ function sendNoteTo(output, note, velocity = 127, textColor = 0x60) {
 }
 
 function clearLEDS() {
+    clear = true;
     output.send([0xF0, 0x00, 0x20, 0x29, 0x02, 0x18, 0x0E, 0x00, 0xF7]);
+}
+
+function spin() {
+    clear = false;
+    lights = [33, 43, 53, 63, 64, 65, 66, 56, 46, 36, 35, 34];
+    index = 0;
+    interval = setInterval(() => {
+        if (clear == true) {
+            clearInterval(interval);
+        } else {
+            setTimeout(spun(index, lights), 500);
+            index++;
+            if (index > lights.length - 1) {
+                index = 0;
+            }
+        }
+    }, 50);
+}
+
+function spun(index, lights) {
+    output.send([0x90, parseInt(lights[index].toString(16), 16), 0x0D]);
+    console.log("sent");
+    if (index != 1 && index != 0) {
+        output.send([0x80, parseInt(lights[index - 2].toString(16), 16), 0x00]);
+    } else if (index == 0) {
+        output.send([0x80, parseInt(lights[lights.length - 1].toString(16), 16), 0x00]);
+    } else {
+        output.send([0x80, parseInt(lights[lights.length - 2].toString(16), 16), 0x00]);
+    }
 }
 
 function runThrough() {
@@ -74,11 +104,20 @@ function sendHexData() {
     output.send(final);
 }
 
-function () {
-
+function setColor() {
+    data = hexToRgb(document.getElementById("colorData").value)
+    console.log(data['r']);
+    output.send([0xF0, 0x00, 0x20, 0x29, 0x02, 0x18, 0x0B, 0x14, parseInt(data['r'].toString(16), 16), parseInt(data['g'].toString(16), 16), parseInt(data['b'].toString(16), 16), 0xF7]);
 }
 
-
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
 navigator.requestMIDIAccess({
     sysex: true
 }).then(onMIDISuccess, onMIDIFailure);
