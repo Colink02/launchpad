@@ -19,7 +19,7 @@ function onMIDIMessage(event) {
         type = data[0] & 0xf0,
         note = data[1],
         velocity = data[2];
-    //console.log(parseInt(note.toString(16), 16));
+    console.log("Key " + parseInt(note.toString(16), 16) + " Pressed.");
     sendNoteTo(output, note, 127, 0x66);
 }
 
@@ -105,19 +105,44 @@ function sendHexData() {
 }
 
 function setColor() {
-    data = hexToRgb(document.getElementById("colorData").value)
-    console.log(data['r']);
-    output.send([0xF0, 0x00, 0x20, 0x29, 0x02, 0x18, 0x0B, 0x14, parseInt(data['r'].toString(16), 16), parseInt(data['g'].toString(16), 16), parseInt(data['b'].toString(16), 16), 0xF7]);
+    data = hexToRgb(document.getElementById("colorData").value);
+    console.log("Red: " + data['r'] + " Green: " + data['g'] + " Blue: " + data['b'] + " HEX is " + document.getElementById("colorData").value);
+    output.send([0xF0, 0x00, 0x20, 0x29, 0x02, 0x18, 0x0B, 0x6F, data['r'], data['g'], data['b'], 0xF7]);
 }
 
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    index = 1;
+    finalresult = {};
+    result.forEach(function (entry) {
+        finalresult[index - 1] = Math.round(parseInt(entry, 16) / 4.04);
+        console.log(finalresult[index - 1]);
+        index++;
+    })
     return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
+        r: finalresult[1].toString(16),
+        g: finalresult[2].toString(16),
+        b: finalresult[3].toString(16)
     } : null;
 }
 navigator.requestMIDIAccess({
     sysex: true
 }).then(onMIDISuccess, onMIDIFailure);
+
+function ready() {
+    (function () {
+        if (!console) {
+            console = {};
+        }
+        var old = console.log;
+        var logger = document.getElementById('console-output');
+        console.log = function (message) {
+            old(message);
+            if (typeof message == 'object') {
+                logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : String(message)) + '<br />' + message + ' <br />';
+            } else {
+                logger.innerHTML += message + '<br />';
+            }
+        }
+    })();
+}
