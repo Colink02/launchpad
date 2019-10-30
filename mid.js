@@ -1,5 +1,7 @@
 let midi = null;
 let output = null;
+let colorSet = false;
+let storedColor;
 let clear = true;
 let launchpadMK2 = [
     81, 82, 83, 84, 85, 86, 87, 88,
@@ -19,8 +21,13 @@ function onMIDIMessage(event) {
         type = data[0] & 0xf0,
         note = data[1],
         velocity = data[2];
-    console.log("Key " + parseInt(note.toString(16), 16) + " Pressed.");
-    sendNoteTo(output, note, 127, 0x66);
+    console.log("MIDI >> COMPUTER: Key " + parseInt(note.toString(16), 16) + " Pressed.");
+    if (colorSet) {
+        sendNoteTo(output, note, 127, storedColor);
+    } else {
+        sendNoteTo(output, note, 127, 0x66);
+    }
+
 }
 
 function onMIDISuccess(midiAccess) {
@@ -36,16 +43,21 @@ function onMIDISuccess(midiAccess) {
 }
 
 function onMIDIFailure(msg) {
-    console.log('Failed to get MIDI access', msg);
+    console.log('SYSTEM >> Did not get MIDI access granted by user!', msg);
 }
 
 function onStateChange(event) {
-    console.log(event.port);
+    console.log("MIDI Device >> '" + event.port.name + "' from the manufacturer '" + event.port.manufacturer + "' is '" + event.port.state + "'");
 }
 
-function sendNoteTo(output, note, velocity = 127, textColor = 0x60) {
+function sendNoteTo(output, note, velocity = 127, textData) {
     //output.send([0x90, parseInt(note.toString(16), 16), 0x15]);
-    output.send([0x92, parseInt(note.toString(16), 16), textColor]);
+    if (colorSet) {
+        textData[7] = parseInt(note.toString(16),16);
+        output.send(textData);
+    } else {
+        output.send([0x92, parseInt(note.toString(16), 16), textData]);
+    }
 }
 
 function clearLEDS() {
@@ -72,7 +84,7 @@ function spin() {
 
 function spun(index, lights) {
     output.send([0x90, parseInt(lights[index].toString(16), 16), 0x0D]);
-    console.log("sent");
+    console.log("COMPUTER >> MIDI DEVICE: Sent Signal...");
     if (index != 1 && index != 0) {
         output.send([0x80, parseInt(lights[index - 2].toString(16), 16), 0x00]);
     } else if (index == 0) {
@@ -84,6 +96,7 @@ function spun(index, lights) {
 
 function runThrough() {
     clearLEDS();
+    console.log("COMPUTER >> MIDI DEVICE: Sent Signal...");
     launchpadMK2.forEach(databyte => {
         setTimeout(function () {
             output.send([0x92, parseInt(databyte.toString(16), 16), 0x51]);
@@ -106,8 +119,16 @@ function sendHexData() {
 
 function setColor() {
     data = hexToRgb(document.getElementById("colorData").value);
-    console.log("Red: " + data['r'] + " Green: " + data['g'] + " Blue: " + data['b'] + " HEX is " + document.getElementById("colorData").value);
-    output.send([0xF0, 0x00, 0x20, 0x29, 0x02, 0x18, 0x0B, 0x6F, data['r'], data['g'], data['b'], 0xF7]);
+    if (data['r'] == 0 && data['g'] == 0 && data['b'] == 0) {
+        colorSet = false;
+        storedColor = null;
+        console.log("SYSTEM >> Color is set to Black this acts like an eraser :D just sayin.");
+    } else {
+        colorSet = true;
+        storedColor = [0xF0, 0x00, 0x20, 0x29, 0x02, 0x18, 0x0B, 0x6F, parseInt(data['r'], 16), parseInt(data['g'], 16), parseInt(data['b'], 16), 0xF7];
+        console.log("SYSTEM >> Saved Color and is ready to use");
+    }
+
 }
 
 function hexToRgb(hex) {
@@ -116,7 +137,6 @@ function hexToRgb(hex) {
     finalresult = {};
     result.forEach(function (entry) {
         finalresult[index - 1] = Math.round(parseInt(entry, 16) / 4.04);
-        console.log(finalresult[index - 1]);
         index++;
     })
     return result ? {
