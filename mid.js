@@ -160,8 +160,10 @@ function ready() {
             old(message);
             if (typeof message == 'object') {
                 logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : String(message)) + '<br />' + message + ' <br />';
+                logger.scrollTop = logger.scrollHeight - logger.clientHeight;
             } else {
                 logger.innerHTML += message + '<br />';
+		        logger.scrollTop = logger.scrollHeight - logger.clientHeight;
             }
         }
     })();
