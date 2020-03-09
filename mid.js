@@ -3,6 +3,7 @@ let output = null;
 let colorSet = false;
 let storedColor;
 let clear = true;
+let pulse = false;
 let launchpadMK2 = [
     81, 82, 83, 84, 85, 86, 87, 88,
     71, 72, 73, 74, 75, 76, 77, 78,
@@ -23,9 +24,9 @@ function onMIDIMessage(event) {
         velocity = data[2];
     console.log("MIDI >> COMPUTER: Key " + parseInt(note.toString(16), 16) + " Pressed.");
     if (colorSet) {
-        sendNoteTo(output, note, 127, storedColor);
+        sendNoteTo(output, note, 127, storedColor, pulse);
     } else {
-        sendNoteTo(output, note, 127, 0x66);
+        sendNoteTo(output, note, 127, 0x66, pulse);
     }
 
 }
@@ -50,13 +51,14 @@ function onStateChange(event) {
     console.log("MIDI Device >> '" + event.port.name + "' from the manufacturer '" + event.port.manufacturer + "' is '" + event.port.state + "'");
 }
 
-function sendNoteTo(output, note, velocity = 127, textData) {
+function sendNoteTo(output, note, velocity = 127, colorData, pulse = false) {
     //output.send([0x90, parseInt(note.toString(16), 16), 0x15]);
     if (colorSet) {
-        textData[7] = parseInt(note.toString(16),16);
-        output.send(textData);
+        colorData[7] = parseInt(note.toString(16), 16);
+        colorData[0] = parseInt(92, 16);
+        output.send(colorData);
     } else {
-        output.send([0x92, parseInt(note.toString(16), 16), textData]);
+        output.send([0x90, parseInt(note.toString(16), 16), colorData]);
     }
 }
 
@@ -99,7 +101,7 @@ function runThrough() {
     console.log("COMPUTER >> MIDI DEVICE: Sent Signal...");
     launchpadMK2.forEach(databyte => {
         setTimeout(function () {
-            output.send([0x92, parseInt(databyte.toString(16), 16), 0x51]);
+            output.send([0x90, parseInt(databyte.toString(16), 16), 0x51]);
         }, 1000);
     });
 }
@@ -163,8 +165,20 @@ function ready() {
                 logger.scrollTop = logger.scrollHeight - logger.clientHeight;
             } else {
                 logger.innerHTML += message + '<br />';
-		        logger.scrollTop = logger.scrollHeight - logger.clientHeight;
+                logger.scrollTop = logger.scrollHeight - logger.clientHeight;
             }
         }
     })();
+}
+function setPulse() {
+    if (pulse) {
+        pulse = false;
+        console.log("Pulsing LED's disabled!");
+    } else {
+        pulse = true;
+        console.log("Pulsing LED's enabled!");
+    }
+}
+function openManual() {
+    window.open("https://d2xhy469pqj8rc.cloudfront.net/sites/default/files/novation/downloads/10529/launchpad-mk2-programmers-reference-guide-v1-02.pdf", "_blank");
 }
