@@ -1,0 +1,36 @@
+.launch-pad-button-mid {
+	width: 64px;
+	height: 64px;
+	display: block;
+	background-color: gray;
+	border-radius: 5px;
+}
+
+.launch-pad-button-up {
+	width: 50px;
+	height: 50px;
+	display: inline-block;
+	background-color: gray;
+	border-radius: 100px;
+	position: relative;
+}
+.launch-pad-row td.pad-circle {
+	width: 64px;
+	height: 64px;
+	vertical-align: middle;
+	text-align: center;
+}
+.launch-pad-button-side {
+	width: 50px;
+	height: 50px;
+	display: inline-block;
+	background-color: gray;
+	border-radius: 100px;
+	position: relative;
+}
+.launchpad-display {
+	border: 10px solid black;
+	border-width: 5px;
+	border-radius: 5px;
+	margin: 10px 10px 10px 10px;
+}

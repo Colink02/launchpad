@@ -1,54 +1,407 @@
 <html>
+	<head>
+		<script src="./mid.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<link
+			rel="stylesheet"
+			href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"
+		/>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+			integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+			crossorigin="anonymous"
+		/>
+		<link rel="stylesheet" href="./midi.css" />
+		<script
+			src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+			integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+			integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+			crossorigin="anonymous"
+		></script>
+	</head>
 
-<head>
-    <script src="./mid.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-</head>
-
-<body style="background-color: #121212;" onload="ready()">
-    <div
-        style="margin-top: 25px; margin-left: 100px;background-color: dimgrey;margin-right: 100px;padding: 10px 10px 10px 10px;border-radius: 5px;">
-        <span style="padding-top: 5px; padding-bottom: 10px;"><b>Testing Panel</b></span><br />
-        <button type="button" class="btn btn-secondary" onclick="clearLEDS()">Clear LEDS</button>
-        <button type="button" onclick="runThrough()" class="btn btn-secondary">Run Through LEDS</button>
-        <button onclick="spin()" type="button" class="btn btn-secondary">Spin LEDS</button>
-        <button type="button" class="btn btn-secondary" onclick="setPulse()">Pulse LEDS</button>
-        <div style="padding-top: 15px;width:450px" class="input-group mb-1">
-            <div class="input-group-prepend">
-                <input type="button" class="btn btn-secondary" onclick="openManual()" value="View Manual">
-            </div>
-            <input type="text" id="data" class="form-control" placeholder="Input Code from Novation's Documentation...">
-            <div class="input-group-append">
-                <input type="button" id="dataCollect" class="btn btn-primary" onclick="sendHexData()" value="Send">
-            </div>
-        </div>
-        <div style="margin-top: 15px;width:250px;" class="input-group mb-1">
-            <input type="color" id="colorData" class="form-control">
-            <div class="input-group-append">
-                <input type="button" value="Set Color" onclick="setColor()" class="btn btn-primary form-control">
-            </div>
-        </div>
-    </div>
-    <div
-        style="margin-top: 25px; margin-left: 100px; background-color: dimgrey; margin-right: 100px; padding: 10px 10px 10px 10px; border-radius: 5px;height:200px;">
-        <span style="padding-top: 5px; padding-bottom: 10px;"><b>Console Log</b></span>
-        <div style="overflow-y:scroll;width: 100%;height:85%;background-color: rgb(65,65,65);color: white;"
-            id="console-output">
-
-        </div>
-
-    </div>
-
-</body>
-
+	<body style="background-color: #121212" onload="ready()">
+		<section
+			style="
+				margin-top: 25px;
+				margin-left: 100px;
+				background-color: dimgrey;
+				margin-right: 100px;
+				padding: 10px 10px 10px 10px;
+				border-radius: 5px;
+			"
+		>
+			<span style="padding-top: 5px; padding-bottom: 10px"
+				><b>Testing Panel</b></span
+			><br />
+			<button type="button" class="btn btn-secondary" onclick="clearLEDS()">
+				Clear LEDS
+			</button>
+			<button type="button" onclick="runThrough()" class="btn btn-secondary">
+				Run Through LEDS
+			</button>
+			<button onclick="spin()" type="button" class="btn btn-secondary">
+				Spin LEDS
+			</button>
+			<button type="button" class="btn btn-secondary" onclick="setPulse()">
+				Pulse LEDS
+			</button>
+			<div style="padding-top: 15px; width: 450px" class="input-group mb-1">
+				<div class="input-group-prepend">
+					<input
+						type="button"
+						class="btn btn-secondary"
+						onclick="openManual()"
+						value="View Manual"
+					/>
+				</div>
+				<input
+					type="text"
+					id="data"
+					class="form-control"
+					placeholder="Input Code from Novation's Documentation..."
+				/>
+				<div class="input-group-append">
+					<input
+						type="button"
+						id="dataCollect"
+						class="btn btn-primary"
+						onclick="sendHexData()"
+						value="Send"
+					/>
+				</div>
+			</div>
+			<div style="margin-top: 15px; width: 250px" class="input-group mb-1">
+				<input type="color" id="colorData" class="form-control" />
+				<div class="input-group-append">
+					<input
+						type="button"
+						value="Set Color"
+						onclick="setColor()"
+						class="btn btn-primary form-control"
+					/>
+				</div>
+			</div>
+			<aside>
+				<table class="launchpad-display">
+					<tr class="launch-pad-row">
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-up launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td>
+							<span class="launch-pad-button-mid launch-pad-button"></span>
+						</td>
+						<td class="pad-circle">
+							<span class="launch-pad-button-side launch-pad-button"></span>
+						</td>
+					</tr>
+					<tr class="launch-pad-row">
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="11"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="12"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="13"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="14"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="15"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="16"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="17"
+							></span>
+						</td>
+						<td>
+							<span
+								class="launch-pad-button-mid launch-pad-button"
+								aria-label="18"
+							></span>
+						</td>
+						<td class="pad-circle">
+							<span
+								class="launch-pad-button-side launch-pad-button"
+								aria-label="19"
+							></span>
+						</td>
+					</tr>
+				</table>
+			</aside>
+		</section>
+		<section
+			style="
+				margin-top: 25px;
+				margin-left: 100px;
+				background-color: dimgrey;
+				margin-right: 100px;
+				padding: 10px 10px 10px 10px;
+				border-radius: 5px;
+				height: 200px;
+			"
+		>
+			<span style="padding-top: 5px; padding-bottom: 10px"
+				><b>Console Log</b></span
+			>
+			<div
+				style="
+					overflow-y: scroll;
+					width: 100%;
+					height: 85%;
+					background-color: rgb(65, 65, 65);
+					color: white;
+				"
+				id="console-output"
+			></div>
+		</section>
+	</body>
 </html>
