@@ -25,7 +25,7 @@ function onMIDIMessage(event) {
 	if (colorSet) {
 		sendNoteTo(output, note, velocity, storedColor, pulse);
 		//TODO make Event system
-		handleDisplay(note);
+		handleDisplay(note, velocity);
 	} else {
 		sendNoteTo(output, note, velocity, 0x66, pulse);
 		handleDisplay(note, velocity);
@@ -61,16 +61,13 @@ function onStateChange(event) {
 function sendNoteTo(output, note, velocity = 0, colorData, pulse = false) {
 	//output.send([0x90, parseInt(note.toString(16), 16), 0x15]);
 	if (velocity == 0) return;
-	console.log("called");
+	//console.log("called");
 	if (colorSet) {
 		data = hexToRgb(document.getElementById("colorData").value);
+		//console.log("The Data array is: ");
+		//console.log(data);
 		colorData[7] = parseInt(note.toString(16), 16);
 		colorData[0] = parseInt(92, 16);
-		data = scaleValue(
-			parseInt(data["r"], 16),
-			parseInt(data["g"], 16),
-			parseInt(data["b"], 16)
-		);
 		output.send([
 			0xf0,
 			0x00,
@@ -80,11 +77,13 @@ function sendNoteTo(output, note, velocity = 0, colorData, pulse = false) {
 			0x18,
 			0x0b,
 			parseInt(note.toString(16), 16),
-			parseInt(data.r, 16),
-			parseInt(data.g, 16),
-			parseInt(data.b, 16),
+			parseInt(parseInt(data["r"]/4, 16),16),
+			parseInt(parseInt(data["g"]/4, 16),16),
+			parseInt(parseInt(data["b"]/4, 16),16),
 			0xf7,
 		]);
+		displayActiveColor(parseInt(note.toString(16), 16), parseInt(data.r/4, 16), parseInt(data.g/4, 16), parseInt(data.b/4, 16));
+		//console.log("Data was " + parseInt(data.r, 16)/4 + ", " + data.g/4 + ", " + data.b/4)
 	} else {
 		output.send([0x90, parseInt(note.toString(16), 16), colorData]);
 	}
@@ -161,7 +160,7 @@ function setColor() {
 		colorSet = false;
 		storedColor = null;
 		console.log(
-			"SYSTEM >> Color is set to Black this acts like an eraser :D just sayin."
+			"SYSTEM -> Color is set to Black this acts like an eraser :D just sayin."
 		);
 	} else {
 		colorSet = true;
@@ -174,21 +173,22 @@ function setColor() {
 			0x18,
 			0x0b,
 			0x6f,
-			parseInt(0.2126 * parseInt(data["r"], 16), 16),
-			parseInt(0.7152 * parseInt(data["g"]), 16),
-			parseInt(0.0722 * parseInt(data["b"]), 16),
+			parseInt(parseInt(data["r"], 16), 16),
+			parseInt(parseInt(data["g"], 16), 16),
+			parseInt(parseInt(data["b"], 16), 16),
 			0xf7,
 		];
-		console.log("SYSTEM >> Saved Color and is ready to use");
+		console.log("SYSTEM >> Saved Color and is ready to use with values: [" + parseInt(parseInt(data["r"], 16), 16) + "," + parseInt(parseInt(data["g"], 16), 16) + "," + parseInt(parseInt(data["b"], 16), 16) + "]");
 	}
 }
 
 function hexToRgb(hex) {
+	//console.log("Hex is " + hex);
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 	index = 1;
 	finalresult = {};
 	result.forEach(function (entry) {
-		finalresult[index - 1] = Math.round(parseInt(entry, 16) / 4.04);
+		finalresult[index - 1] = Math.round(parseInt(entry, 16)/2.56);
 		index++;
 	});
 	return result
@@ -214,7 +214,7 @@ for (var i = 0; i < buttons.length; i++) {
 		if (e.nodeName === 'BUTTON') {
 			e.style.backgroundColor = "blue";
 		}
-		console.log("Click!");
+		//console.log("Click!");
 	};
 	buttons[i].onmouseup = (e) => {
 		e = e || window.event;
@@ -222,7 +222,7 @@ for (var i = 0; i < buttons.length; i++) {
 		if (e.nodeName === 'BUTTON') {
 			e.style.backgroundColor = "gray";
 		}
-		console.log("Click!");
+		//console.log("Click!");
 	};
 }
 	(function () {
@@ -262,6 +262,30 @@ function openManual() {
 		"_blank"
 	);
 }
+function displayActiveColor(note, r, g, b) {
+	nums = parseInt(note.toString(16), 16).toString();
+	numberArray = [];
+	if (nums.length == 3) {
+		nums = (parseInt(note.toString(16), 16) - 12).toString();
+	}
+	for (i = 0, len = nums.length; i < len; i += 1) {
+		if (len == 3 && i == 0) {
+			topbutton = true;
+			numberArray.push(+(nums.charAt(i) + nums.charAt(i + 1)));
+		} else if (len == 3 && i == 1) {
+			continue;
+		} else {
+			numberArray.push(+nums.charAt(i));
+		}
+	}
+	document.getElementsByClassName("launch-pad-button")[
+		document.getElementsByClassName("launch-pad-button").length -
+			numberArray[0] * 10 +
+			numberArray[1] +
+			numberArray[0] -
+			1
+	].style.backgroundColor = "rgb(" + r + "," + g + "," + b + ")";
+}
 function handleDisplay(note, velocity) {
 	nums = parseInt(note.toString(16), 16).toString();
 	numberArray = [];
@@ -278,7 +302,7 @@ function handleDisplay(note, velocity) {
 			numberArray.push(+nums.charAt(i));
 		}
 	}
-	console.log(numberArray);
+	//console.log(numberArray);
 	if (velocity == 0) {
 		document.getElementsByClassName("launch-pad-button")[
 			document.getElementsByClassName("launch-pad-button").length -
@@ -299,9 +323,8 @@ function handleDisplay(note, velocity) {
 		].style.backgroundColor = "blue";
 	}
 }
-function scaleValue(r, g, b) {
-	redBrightness = (63 * (r - 0)) / (255 - 0);
-	greenBrightness = (63 * (b - 0)) / (255 - 0);
-	blueBrightness = (63 * (g - 0)) / (255 - 0);
-	return { r: redBrightness, g: greenBrightness, b: blueBrightness };
+function scaleValue(val) {
+	//console.log("Value is: " + (((63-0) * (val - 0)) / (255 - 0)) + 0);
+	return (63 * (val - 0)) / (255 - 0);
+	//((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin
 }
