@@ -208,9 +208,22 @@ navigator
 function ready() {
 	buttons = document.getElementsByClassName("launch-pad-button");
 for (var i = 0; i < buttons.length; i++) {
-    buttons[i].addEventListener('click', () => {
+    buttons[i].onmousedown = (e) => {
+		e = e || window.event;
+		e = e.target || e.srcElement;
+		if (e.nodeName === 'BUTTON') {
+			e.style.backgroundColor = "blue";
+		}
 		console.log("Click!");
-	}, false);
+	};
+	buttons[i].onmouseup = (e) => {
+		e = e || window.event;
+		e = e.target || e.srcElement;
+		if (e.nodeName === 'BUTTON') {
+			e.style.backgroundColor = "gray";
+		}
+		console.log("Click!");
+	};
 }
 	(function () {
 		if (!console) {
